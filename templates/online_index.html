@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>聊天室</title>
+</head>
+<body>
+    <div id="contents" style="height:500px;overflow:auto; border:green solid 2px"></div>
+    <div>
+        <textarea id="msg" style="width: 260px;height: 120px" placeholder="输入要发送的内容"></textarea>
+        <input id="send_msg" type="button" href="javascript:;" onclick="sendMsg()" value="发送">
+    </div>
+    <script src="{{static_url('js/jquery.min.js')}}"></script>
+    <script type="text/javascript">
+
+        //创建ws协议连接，创建出来后就已经和服务端建立连接
+        var ws = new WebSocket("ws://10.255.175.109:8000/chat?username={{current_user}}");
+
+        //收到ws消息的时候在div对话框里面增加一行文字
+        ws.onmessage = function(recv) {
+            $("#contents").append("<p>" + recv.data + "</p>");
+        };
+
+        var username = "{{current_user}}";
+/////////////////////////监控按下回车键动作//////////////////////////
+//         $("#send_msg").keypress(
+//             function () {
+//                 console.log('发送消息');
+//                 sendMsg();
+//             }
+//         )
+///////////////////////////////////////////////////////////////////////
+        function sendMsg() {
+            $('#msg').val($('#msg').val().trim());//去除输入前后的空格
+            var msg = $("#msg").val();
+            if ( msg && msg.length >0) {
+                data = {
+                    // username:username,
+                    msg:msg
+                };
+                ws.send(JSON.stringify(data));
+                $("#msg").val("");
+            }else {
+                alert('内容不许为空')
+            }
+        }
+    </script>
+</body>
+</html>
